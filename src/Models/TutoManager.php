@@ -30,19 +30,19 @@ class TutoManager extends Manager
         return $tuto;
     }
 
-    public function findAll()
+    public function findAll($page = 0)
     {
 
         // Connexion à la BDD
         $dbh = static::connectDb();
-
+        $page = $_GET['page'];
         // Requête
-        $sth = $dbh->prepare('SELECT * FROM tutos');
+        $sth = $dbh->prepare('SELECT * FROM tutos ORDER BY id ASC   LIMIT '.$page.'');
         $sth->execute();
 
         $tutos = [];
 
-        while($row = $sth->fetch(\PDO::FETCH_ASSOC)){
+        while ($row = $sth->fetch(\PDO::FETCH_ASSOC)) {
 
             $tuto = new Tuto();
             $tuto->setId($row['id']);
@@ -50,14 +50,13 @@ class TutoManager extends Manager
             $tuto->setDescription($row['description']);
             $tuto->setCreatedAt($row["createdAt"]);
             $tutos[] = $tuto;
-
         }
 
         return $tutos;
-
     }
 
-    public function add(Tuto $tuto){
+    public function add(Tuto $tuto)
+    {
 
         // Connexion à la BDD
         $dbh = static::connectDb();
@@ -76,19 +75,33 @@ class TutoManager extends Manager
         $id = $dbh->lastInsertId();
         $tuto->setId($id);
         return $tuto;
-
     }
 
-    public function update(Tuto $tuto){
+    public function update($id)
+    {
+        $dbh = static::connectDb();
+        $sth = $dbh->prepare('UPDATE `tutos` SET `title` = :title ,`description` = :description where `id` = :id ');
+        parse_str(file_get_contents('php://input'), $_PATCH);
 
-       // Modification d'un tuto en BDD
 
+
+        $sth->bindParam(':id', $id);
+
+        $sth->bindParam(':title', $_PATCH['title']);
+
+        $sth->bindParam(':description', $_PATCH['description']);
+
+        $sth->execute();
     }
 
+    public function delete($id)
+    {
+        $dbh = static::connectDb();
+        $sth = $dbh->prepare('DELETE FROM tutos WHERE id= :id');
 
 
+        $sth->bindParam(':id', $id);
 
-
-
-
+        $sth->execute();
+    }
 }

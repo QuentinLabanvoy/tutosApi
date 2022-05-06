@@ -39,13 +39,39 @@ class tutoController extends abstractController
     {
 
         // Ajout d'un tuto
+        $tuto = new Tuto;
+        $tuto->setTitle($_POST['title']);
+        $tuto->setDescription($_POST['description']);
+        $now = new \DateTime;
+        $dateString = strtotime('%Y-%m-%d', $now->getTimestamp());
 
-        $tuto = [];
+        $tuto->setCreatedAt(strtotime('%Y-%m-%d', $dateString));
+
+        $manager = new TutoManager();
+        $tuto = $manager->add($tuto);
 
         // TODO: ajout d'un tuto
 
-        return $this->jsonResponse($tuto, 200);
+        return $this->jsonResponse($tuto, 201);
     }
+    public function patch($id)
+    {
+       
 
+        $manager = new TutoManager();
+  
+        $tutos = $manager->update($id);
 
+        return $this->jsonResponse($tutos, 200);
+    }
+    public function deletes($id)
+    {
+       
+
+        $manager = new TutoManager();
+       
+        $tutos = $manager->delete($id);
+
+        return $this->jsonResponse($tutos, 200);
+    }
 }
